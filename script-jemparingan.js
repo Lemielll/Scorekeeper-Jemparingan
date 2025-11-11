@@ -234,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addFromInput.addEventListener('click', () => {
     if (state.matchEnded) return;
     const name = (newName.value || '').trim();
-    if (!name) { alert('Masukkan nama atlet.'); return; }
+    if (!name) { alert('Nama atlet kosong.'); return; }
     addCompetitor(name);
     newName.value = '';
   });
