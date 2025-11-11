@@ -63,7 +63,6 @@
     .controls{display:flex;gap:10px}
     #endBtn{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:700;}
     #endBtn:hover{background:#c9302c;border-color:#c9302c;color:#fff;}
-    /* ✅ PERBAIKAN: gunakan class .done, bukan selector textContent */
     #endBtn.done{
       background:var(--success);
       border-color:var(--success);
@@ -121,13 +120,17 @@
         <h1>Jemparingan Scorekeeper</h1>
         <div class="small" id="modeLabel">Memuat mode...</div>
       </div>
-      <div class="controls">
-        <button id="backToChoose">Kembali</button>
-        <button id="exportBtn">Export CSV</button>
-        <button id="resetBtn">Reset Sesi</button>
-        <button id="endBtn">Akhiri Sesi</button>
+      
+      <div style="text-align: right;">
+        <div id="clock" class="small muted" style="margin-bottom: 8px; font-weight: 600; min-height: 1.2em;"></div>
+        <div class="controls">
+          <button id="backToChoose">Kembali</button>
+          <button id="exportBtn">Export CSV</button>
+          <button id="resetBtn">Reset Sesi</button>
+          <button id="endBtn">Akhiri Sesi</button>
+        </div>
       </div>
-    </header>
+      </header>
 
     <div class="card top-row">
       <div><span class="muted">Anak panah / seri: 4</span></div>
@@ -175,7 +178,10 @@
         </div>
       </aside>
     </div>
+  </div> <div style="text-align:center;font-size:12px;color:#999;margin-top:20px; padding-bottom: 20px;">
+    Jemparingan Scorekeeper © 2025 — v1.3 by Kevin Febriano
   </div>
+  
   <script src="script-jemparingan.js"></script>
 </body>
 </html>

@@ -18,6 +18,7 @@
       margin:0;
       min-height:100vh;
       display:flex;
+      flex-direction:column; /* Diubah agar footer bisa di bawah */
       align-items:center;
       justify-content:center;
       background: linear-gradient(180deg, var(--bg), #fffaf0);
@@ -88,8 +89,11 @@
 
     <div class="foot">
       <div>Menembakkan 4 anak panah / seri, maksimal 20 seri</div>
-      <div><button class="btn" id="btn-continue" style="display:none">Lanjutkan</button></div>
     </div>
+  </div>
+
+  <div style="text-align:center;font-size:12px;color:#999;margin-top:20px; padding-bottom: 20px;">
+    Jemparingan Scorekeeper © 2025 — v1.3 by Kevin Febriano
   </div>
 
   <script>

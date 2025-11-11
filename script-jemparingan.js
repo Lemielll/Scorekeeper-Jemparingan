@@ -1,4 +1,4 @@
-// script-jemparingan.js (versi fix)
+// script-jemparingan.js (versi fix + fitur jam-menit)
 document.addEventListener("DOMContentLoaded", () => {
   const mode = localStorage.getItem('targetMode') || '321';
   const maxEnds = 20;
@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevEndBtn = document.getElementById('prevEnd');
   const nextEndBtn = document.getElementById('nextEnd');
   const backToChoose = document.getElementById('backToChoose');
+  
+  // Variabel elemen jam
+  const clockEl = document.getElementById('clock');
 
   modeLabel.textContent = mode === '321' ? 'Mode: 3 – 2 – 1' : 'Mode: 3 – 1';
   maxEndsLabel.textContent = maxEnds;
@@ -135,49 +138,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function recordScore(value) {
-  if (!state.selectedId || state.matchEnded) {
-    alert('Pilih atlet terlebih dahulu sebelum memasukkan skor.');
-    return;
-  }
-
-  const p = state.competitors.find(x => x.id === state.selectedId);
-  if (!p) return;
-
-  const sValue = String(value);
-  const isM = sValue.toUpperCase() === 'M' || sValue === '0';
-  const numeric = isM ? 0 : Number(value);
-  if (!isM && (Number.isNaN(numeric) || numeric < 0)) return;
-
-  const currentScores = p.scores[state.currentEnd];
-  const emptySlotIndex = currentScores.findIndex(s => s === null);
-  if (emptySlotIndex === -1) { 
-    alert('Sudah mencapai 4 anak panah.'); 
-    return; 
-  }
-
-  const arrow = { end: state.currentEnd, score: numeric, isM };
-  currentScores[emptySlotIndex] = arrow;
-  recalculateStats(p);
-
-  // cek apakah semua atlet sudah isi seri ini
-  const finished = state.competitors.filter(c =>
-    c.scores[state.currentEnd].every(s => s !== null)
-  ).length;
-
-  if (finished === state.competitors.length && state.competitors.length > 0) {
-    if (state.currentEnd >= maxEnds) {
-      endRound();
-    } else {
-      // ✅ Keamanan: pindah seri tapi semua atlet harus diklik ulang
-      state.currentEnd++;
-      state.selectedId = null;
+    if (!state.selectedId || state.matchEnded) {
+      alert('Pilih atlet terlebih dahulu sebelum memasukkan skor.');
+      return;
     }
+
+    const p = state.competitors.find(x => x.id === state.selectedId);
+    if (!p) return;
+
+    const sValue = String(value);
+    const isM = sValue.toUpperCase() === 'M' || sValue === '0';
+    const numeric = isM ? 0 : Number(value);
+    if (!isM && (Number.isNaN(numeric) || numeric < 0)) return;
+
+    const currentScores = p.scores[state.currentEnd];
+    const emptySlotIndex = currentScores.findIndex(s => s === null);
+    if (emptySlotIndex === -1) { 
+      alert('Sudah mencapai 4 anak panah.'); 
+      return; 
+    }
+
+    const arrow = { end: state.currentEnd, score: numeric, isM };
+    currentScores[emptySlotIndex] = arrow;
+    recalculateStats(p);
+
+    const finished = state.competitors.filter(c =>
+      c.scores[state.currentEnd].every(s => s !== null)
+    ).length;
+
+    if (finished === state.competitors.length && state.competitors.length > 0) {
+      if (state.currentEnd >= maxEnds) {
+        endRound();
+      } else {
+        state.currentEnd++;
+        state.selectedId = null;
+      }
+    }
+    render();
   }
-
-  render();
-}
-
-
 
   function fillMissesForEnd(endNumber) {
     state.competitors.forEach(p => {
@@ -203,7 +201,6 @@ document.addEventListener("DOMContentLoaded", () => {
     state.selectedId = null;
     endBtn.textContent = 'Akhiri Sesi';
     endBtn.classList.remove('done');
-    localStorage.removeItem('targetMode');
     render();
   }
 
@@ -291,6 +288,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const a = document.createElement('a');
     a.href = url; a.download = 'jemparingan_round.csv'; a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // FITUR BARU: Logika Jam Digital (Hanya Jam dan Menit)
+  if (clockEl) {
+    const updateClock = () => {
+      clockEl.textContent = new Date().toLocaleTimeString('id-ID', {
+        hour: '2-digit',
+        minute: '2-digit',
+        // 'second: '2-digit',' <-- BARIS INI DIHAPUS
+        hour12: false
+      });
+    };
+    setInterval(updateClock, 1000); // Tetap 1 detik agar update menit akurat
+    updateClock(); // Jalankan sekali saat memuat
   }
 
   render();
