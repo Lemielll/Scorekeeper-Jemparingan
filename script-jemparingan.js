@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     competitors: [],
     selectedId: null,
     currentEnd: 1,
-    arrowsPerEnd: arrowsPerEndFixed,
+    // arrowsPerEnd: arrowsPerEndFixed, // <-- DIHAPUS (Tidak digunakan)
     matchEnded: false,
   };
 
@@ -211,7 +211,6 @@ document.addEventListener("DOMContentLoaded", () => {
       endBtn.classList.add('done');
       state.currentEnd = maxEnds;
       render();
-      // alert('Sesi selesai. Kamu bisa export hasil atau reset untuk sesi baru.'); // <-- BARIS INI DIHAPUS
     }
   }
 
@@ -242,15 +241,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   exportBtn.addEventListener('click', () => { exportCSV(); state.selectedId = null; render(); });
   resetBtn.addEventListener('click', resetRound);
+  
   endBtn.addEventListener('click', () => {
-    if (state.competitors.length === 0) return alert('Data kosong.');
+    // --- REVISI ALERT ---
+    if (state.competitors.length === 0) return alert('Data belum terisi'); 
     if (!state.matchEnded && confirm('Akhiri sesi sekarang? Skor akan terkunci dan tidak dapat diubah (skor kosong akan terisi M)')) endRound();
   });
+
   nextEndBtn.addEventListener('click', () => {
-    if (state.competitors.length === 0) return alert('Nama atlet kosong.');
+    // --- REVISI ALERT ---
+    if (state.competitors.length === 0) return alert('Data belum terisi');
     if (state.currentEnd === maxEnds) return;
     nextEnd();
   });
+
   prevEndBtn.addEventListener('click', prevEnd);
 
   backToChoose.addEventListener('click', () => {
