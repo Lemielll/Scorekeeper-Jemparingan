@@ -23,8 +23,6 @@
       align-items:center;
       justify-content:center;
       background: linear-gradient(180deg, var(--bg), #fffaf0);
-      transform: scale(1.3);
-      overflow: hidden; /* Paksa sembunyikan scrollbar */
     }
     .wrap{
       width: 700px; 
@@ -34,7 +32,10 @@
       border-radius:12px;
       box-shadow:0 6px 20px var(--shadow);
       border:1px solid rgba(139,94,60,0.06);
-    }
+      
+      /* transform: scale(1.3); <-- BARIS INI SAYA HAPUS */
+    } 
+
     header{display:flex;align-items:center;justify-content:space-between;margin-bottom: 12px;}
     h1{margin:0;font-size:20px;color:var(--accent)}
     p.lead{margin:4px 0 0;color:var(--muted)}
@@ -96,7 +97,6 @@
         #fff 100%
       );
     }
-    /* --- AKHIR CSS VISUAL BANDUL --- */
 
   </style>
 </head>
@@ -146,12 +146,10 @@
       window.location.href = 'jemparingan.html';
     });
     
-    /* --- PERUBAHAN DI SINI --- */
     document.getElementById('opt-31').addEventListener('click', ()=> {
-      localStorage.setItem('targetMode', '31'); // Diubah ke '31'
+      localStorage.setItem('targetMode', '31');
       window.location.href = 'jemparingan.html';
     });
-    /* --- AKHIR PERUBAHAN --- */
   </script>
 </body>
 </html>

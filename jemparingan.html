@@ -79,16 +79,24 @@
     #exportBtn:hover,#resetBtn:hover,#backToChoose:hover{
       background:var(--accent);color:#fff;
     }
-    #prevEnd,#nextEnd,#addFromInput{
+    #prevEnd,#nextEnd,#addFromInput, #scanBtn {
       background:var(--accent-light);
       border-color:rgba(139,94,60,0.2);
       color:var(--accent);
       font-weight:700;
       padding:8px;
     }
-    #prevEnd:hover,#nextEnd:hover,#addFromInput:hover{
+    #prevEnd:hover,#nextEnd:hover,#addFromInput:hover, #scanBtn:hover {
       background:var(--accent);color:#fff;
     }
+    /* --- Gaya khusus untuk tombol scan emoji --- */
+    #scanBtn {
+        font-size: 20px; /* Atur ukuran emoji */
+        line-height: 1; /* Pastikan emoji tetap di tengah vertikal */
+        padding: 8px 10px; /* Sesuaikan padding agar terlihat bagus */
+    }
+
+
     #addFromInput{padding:8px 12px;}
     .pad{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
     .pad button{
@@ -131,7 +139,7 @@
           <button id="endBtn">Akhiri Sesi</button>
         </div>
       </div>
-      </header>
+    </header>
 
     <div class="card top-row">
       <div><span class="muted">Anak panah / seri: 4</span></div>
@@ -142,7 +150,17 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
             <div><strong>Daftar Atlet</strong></div>
+          </div>
+
+          <div style="margin-top:0px; margin-bottom: 12px; border-bottom: 1px solid rgba(139,94,60,0.1); padding-bottom: 12px;">
+            <div style="margin-bottom:8px; font-weight:600; color: var(--accent-dark);">Input skor manual / barcode</div>
+            <div style="display:flex;gap:8px">
+              <input id="newName" type="text" placeholder="Nama atlet" />
+              <button id="addFromInput" style="flex-grow: 1;">Tambah</button>
+              
+              <button id="scanBtn" title="Pindai Barcode">⛶</button>
             </div>
+          </div>
           <div class="players" id="players"></div>
           <div style="margin-top:12px;color:var(--muted);font-size:13px">
             Tips: Klik nama atlet → gunakan tombol skor. Klik skor di kotak untuk menghapusnya.
@@ -154,14 +172,6 @@
         <div class="card">
           <h3 style="margin-top:0">Leaderboard</h3>
           <div id="leaderboard"></div>
-
-          <div style="margin-top:12px">
-            <div style="margin-bottom:8px">Tambahkan atlet</div>
-            <div style="display:flex;gap:8px">
-              <input id="newName" type="text" placeholder="Nama atlet" />
-              <button id="addFromInput">Tambah</button>
-            </div>
-          </div>
 
           <div style="margin-top:12px">
             <div class="muted">Competitors: <span id="numComp">0</span></div>

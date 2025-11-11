@@ -8,8 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const leaderboardEl = document.getElementById('leaderboard');
   const numCompEl = document.getElementById('numComp');
   const currentEndEl = document.getElementById('currentEnd');
+  
+  // --- PERBAIKAN DI SINI ---
   const maxEndsLabel = document.getElementById('maxEndsLabel');
   const maxEndsEl = document.getElementById('maxEnds');
+  // --- AKHIR PERBAIKAN ---
+
   const newName = document.getElementById('newName');
   const addFromInput = document.getElementById('addFromInput');
   const exportBtn = document.getElementById('exportBtn');
@@ -18,24 +22,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const prevEndBtn = document.getElementById('prevEnd');
   const nextEndBtn = document.getElementById('nextEnd');
   const backToChoose = document.getElementById('backToChoose');
-  
   const clockEl = document.getElementById('clock');
+  const scanBtn = document.getElementById('scanBtn');
 
   modeLabel.textContent = mode === '321' ? 'Bandul: 3 – 2 – 1' : 'Bandul: 3 – 1';
-  maxEndsLabel.textContent = maxEnds;
+  
+  // --- PERBAIKAN DI SINI ---
+  // Pastikan kedua elemen diperbarui oleh konstanta maxEnds
+  maxEndsLabel.textContent = maxEnds; 
   maxEndsEl.textContent = maxEnds;
+  // --- AKHIR PERBAIKAN ---
 
   const scoringButtonsByMode = {
     '321': ['3', '2', '1', 'M'],
     '31': ['3', '1', 'M']
   };
 
-  const state = {
+  const defaultState = {
     competitors: [],
     selectedId: null,
     currentEnd: 1,
     matchEnded: false,
   };
+  
+  let state = defaultState; 
+
+  function saveState() {
+    localStorage.setItem('jemparinganState', JSON.stringify(state));
+  }
+
+  function loadState() {
+    const savedState = localStorage.getItem('jemparinganState');
+    if (savedState) {
+      state = JSON.parse(savedState);
+    } else {
+      state = { ...defaultState, competitors: [] };
+    }
+  }
 
   function recalculateStats(p) {
     let total = 0, missCount = 0;
@@ -63,7 +86,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       for (let i = 0; i < arrowsPerEndFixed; i++) {
         const arrow = currentEndArrows[i];
-        currentArrowsHtml += `<div class="arrow-box ${arrow ? 'filled' : 'empty'}" data-index="${i}">
+        // --- Perbaikan kecil di sini: Menambah kelas 'miss' ---
+        const arrowClass = arrow ? (arrow.isM ? 'filled miss' : 'filled') : 'empty';
+        currentArrowsHtml += `<div class="arrow-box ${arrowClass}" data-index="${i}">
           ${arrow ? (arrow.isM ? 'M' : arrow.score) : '&nbsp;'}</div>`;
       }
 
@@ -96,9 +121,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const scoreBtn = e.target.closest('[data-score]');
-        if (scoreBtn) { recordScore(scoreBtn.dataset.score); return; }
+        if (scoreBtn) { 
+          recordScoreManual(scoreBtn.dataset.score); 
+          return; 
+        }
 
-        if (state.selectedId !== p.id) { state.selectedId = p.id; render(); }
+        if (state.selectedId !== p.id) { 
+          state.selectedId = p.id; 
+          render();
+        }
       });
       playersEl.appendChild(div);
     });
@@ -111,18 +142,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function addCompetitor(name = "Atlet") {
+    const existing = state.competitors.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      state.selectedId = existing.id;
+      return existing; 
+    }
+
     const id = Date.now() + Math.floor(Math.random() * 1000);
     const newScores = {};
     for (let i = 1; i <= maxEnds; i++) newScores[i] = [null, null, null, null];
-    state.competitors.push({ id, name, scores: newScores, total: 0, missCount: 0 });
+    const newP = { id, name, scores: newScores, total: 0, missCount: 0 };
+    
+    state.competitors.push(newP);
     state.selectedId = id;
-    render();
     newName.focus();
+    
+    return newP;
   }
 
   function removeCompetitor(id) {
     state.competitors = state.competitors.filter(p => p.id !== id);
     if (state.selectedId === id) state.selectedId = state.competitors[0]?.id || null;
+    
+    saveState();
     render();
   }
 
@@ -131,84 +173,153 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!p) return;
     p.scores[end][indexOnCard] = null;
     recalculateStats(p);
+    
+    saveState();
     render();
   }
-
-  function recordScore(value) {
+  
+  function recordScoreManual(value) {
     if (!state.selectedId || state.matchEnded) {
       alert('Pilih atlet terlebih dahulu sebelum memasukkan skor.');
       return;
     }
-
     const p = state.competitors.find(x => x.id === state.selectedId);
     if (!p) return;
+
+    const success = recordScore(p, value, null);
+
+    if (success) {
+      recalculateStats(p);
+      
+      const finished = state.competitors.filter(c =>
+        c.scores[state.currentEnd].every(s => s !== null)
+      ).length;
+
+      if (finished === state.competitors.length && state.competitors.length > 0) {
+        if (state.currentEnd >= maxEnds) {
+          endRound();
+        } else {
+          state.currentEnd++;
+          state.selectedId = null;
+          saveState();
+        }
+      } else {
+         saveState();
+      }
+      
+      render();
+    }
+  }
+
+  function recordScore(p, value, location = null) {
+    if (!p || state.matchEnded) return false;
 
     const sValue = String(value);
     const isM = sValue.toUpperCase() === 'M' || sValue === '0';
     const numeric = isM ? 0 : Number(value);
-    if (!isM && (Number.isNaN(numeric) || numeric < 0)) return;
+    if (!isM && (Number.isNaN(numeric) || numeric < 0)) return false;
 
     const currentScores = p.scores[state.currentEnd];
     const emptySlotIndex = currentScores.findIndex(s => s === null);
+    
     if (emptySlotIndex === -1) { 
-      alert('Sudah mencapai 4 anak panah.'); 
-      return; 
+      alert(`Skor Seri ${state.currentEnd} untuk ${p.name} sudah penuh (4 panah).`); 
+      return false; // Gagal
     }
 
-    const arrow = { end: state.currentEnd, score: numeric, isM };
+    const arrow = { 
+      end: state.currentEnd, 
+      score: numeric, 
+      isM: isM, 
+      lokasi: location
+    };
     currentScores[emptySlotIndex] = arrow;
-    recalculateStats(p);
+    return true; // Sukses
+  }
+  
+  function processScannedScore() {
+    const queueJSON = localStorage.getItem('scannedScoresQueue');
+    if (!queueJSON) return; 
 
-    const finished = state.competitors.filter(c =>
-      c.scores[state.currentEnd].every(s => s !== null)
-    ).length;
+    try {
+      const queue = JSON.parse(queueJSON);
+      if (queue.length === 0) return;
 
-    if (finished === state.competitors.length && state.competitors.length > 0) {
-      if (state.currentEnd >= maxEnds) {
-        endRound();
-      } else {
-        state.currentEnd++;
-        state.selectedId = null;
+      localStorage.removeItem('scannedScoresQueue'); 
+      
+      let processedSuccessfully = false; 
+
+      for (const item of queue) {
+        const atletName = item.name;
+        const newScore = item.scoreData;
+
+        let p = state.competitors.find(c => c.name.toLowerCase() === atletName.toLowerCase());
+        if (!p) {
+          p = addCompetitor(atletName);
+        }
+        
+        state.selectedId = p.id; 
+        const success = recordScore(p, newScore.score, newScore.lokasi);
+        
+        if (success) {
+          processedSuccessfully = true;
+        } else {
+          let remainingQueue = [];
+          const failedIndex = queue.indexOf(item);
+          if (failedIndex !== -1) {
+            remainingQueue = queue.slice(failedIndex);
+            localStorage.setItem('scannedScoresQueue', JSON.stringify(remainingQueue));
+          }
+          break;
+        }
       }
+      
+      if (processedSuccessfully) {
+        state.competitors.forEach(p => recalculateStats(p));
+        saveState();
+      }
+
+    } catch (e) {
+      console.error("Gagal memproses antrian skor:", e);
+      localStorage.removeItem('scannedScoresQueue');
     }
-    render();
   }
 
   function fillMissesForEnd(endNumber) {
+    let changed = false;
     state.competitors.forEach(p => {
       const currentScores = p.scores[endNumber];
       for (let i = 0; i < arrowsPerEndFixed; i++) {
-        if (currentScores[i] === null)
-          currentScores[i] = { end: endNumber, score: 0, isM: true };
+        if (currentScores[i] === null) {
+          currentScores[i] = { end: endNumber, score: 0, isM: true, lokasi: null };
+          changed = true;
+        }
       }
-      recalculateStats(p);
+      if(changed) recalculateStats(p);
     });
+    if(changed) saveState();
   }
 
   function resetRound() {
     if (!confirm('Mulai sesi baru? Semua data akan dihapus.')) return;
-    state.competitors.forEach(p => {
-      p.total = 0; p.missCount = 0;
-      const newScores = {};
-      for (let i = 1; i <= maxEnds; i++) newScores[i] = [null, null, null, null];
-      p.scores = newScores;
-    });
-    state.currentEnd = 1;
-    state.matchEnded = false;
-    state.selectedId = null;
-    endBtn.textContent = 'Akhiri Sesi';
-    endBtn.classList.remove('done');
+    
+    state = { ...defaultState, competitors: [] }; 
+    
+    saveState();
     render();
   }
 
   function endRound() {
     if (!state.matchEnded) {
+      fillMissesForEnd(state.currentEnd);
       for (let i = state.currentEnd; i <= maxEnds; i++) fillMissesForEnd(i);
       state.matchEnded = true;
       state.selectedId = null;
       endBtn.textContent = 'Sesi Selesai';
       endBtn.classList.add('done');
       state.currentEnd = maxEnds;
+      
+      saveState();
       render();
     }
   }
@@ -220,6 +331,8 @@ document.addEventListener("DOMContentLoaded", () => {
       state.currentEnd++;
     } else if (state.currentEnd < maxEnds) state.currentEnd++;
     state.selectedId = null;
+    
+    saveState();
     render();
   }
 
@@ -227,6 +340,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (state.currentEnd <= 1) return;
     state.currentEnd--;
     state.selectedId = null;
+    
+    saveState();
     render();
   }
 
@@ -235,7 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = (newName.value || '').trim();
     if (!name) { alert('Nama atlet kosong.'); return; }
     addCompetitor(name);
-    newName.value = '';
+    
+    saveState();
+    render();
+    newName.value = ''; // Kosongkan input setelah menambah
   });
 
   exportBtn.addEventListener('click', () => { exportCSV(); state.selectedId = null; render(); });
@@ -254,9 +372,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   prevEndBtn.addEventListener('click', prevEnd);
 
+  scanBtn.addEventListener('click', () => {
+    if (state.matchEnded) {
+      alert('Sesi sudah berakhir. Tidak bisa menambah skor.');
+      return;
+    }
+    window.location.href = 'kamera.html';
+  });
+
   backToChoose.addEventListener('click', () => {
     if (!confirm('Kembali ke pemilihan mode? Pengaturan tidak tersimpan.')) return;
     localStorage.removeItem('targetMode');
+    localStorage.removeItem('jemparinganState');
+    localStorage.removeItem('scannedScoresQueue');
     window.location.href = 'index.html';
   });
 
@@ -267,24 +395,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (state.matchEnded) return;
     const key = e.key.toUpperCase();
-    if (key === '0') return recordScore('0');
-    if (scoringButtonsByMode[mode].includes(key)) recordScore(key);
+    if (key === '0') return recordScoreManual('0');
+    if (scoringButtonsByMode[mode].includes(key)) recordScoreManual(key);
   });
 
-  // --- FUNGSI CSV DIPERBARUI (JUDUL DIPERSINGKAT) ---
   function exportCSV() {
-    // 1. Buat Header (Judul Kolom)
-    const headers = ['Nama']; // <-- DIPERSINGKAT
+    const headers = ['Nama']; 
     for (let i = 1; i <= maxEnds; i++) {
-      headers.push(`R${i}`); // <-- DIPERSINGKAT
+      headers.push(`R${i}`);
     }
-    headers.push('Total'); // <-- DIPERSINGKAT
-    headers.push('Miss');  // <-- DIPERSINGKAT
+    headers.push('Total');
+    headers.push('Miss');
 
-    // Urutkan data
     const sortedCompetitors = [...state.competitors].sort((a, b) => b.total - a.total || a.missCount - b.missCount);
 
-    // 2. Buat Baris Data per Atlet (Gunakan data yang sudah diurutkan)
     const rows = sortedCompetitors.map(p => {
       const rowData = [];
       rowData.push(`"${p.name}"`); 
@@ -309,10 +433,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return rowData.join(',');
     });
 
-    // 3. Gabungkan Header dan Baris Data
     const csv = [headers.join(','), ...rows].join('\n');
     
-    // 4. Proses Download
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -321,7 +443,6 @@ document.addEventListener("DOMContentLoaded", () => {
     a.click();
     URL.revokeObjectURL(url);
   }
-  // --- AKHIR FUNGSI CSV BARU ---
 
   if (clockEl) {
     const updateClock = () => {
@@ -335,5 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateClock();
   }
 
+  loadState();
+  processScannedScore();
   render();
 });
