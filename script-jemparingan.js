@@ -1,4 +1,3 @@
-// script-jemparingan.js (versi fix + fitur jam-menit)
 document.addEventListener("DOMContentLoaded", () => {
   const mode = localStorage.getItem('targetMode') || '321';
   const maxEnds = 20;
@@ -20,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextEndBtn = document.getElementById('nextEnd');
   const backToChoose = document.getElementById('backToChoose');
   
-  // Variabel elemen jam
   const clockEl = document.getElementById('clock');
 
   modeLabel.textContent = mode === '321' ? 'Mode: 3 – 2 – 1' : 'Mode: 3 – 1';
@@ -290,18 +288,16 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   }
 
-  // FITUR BARU: Logika Jam Digital (Hanya Jam dan Menit)
   if (clockEl) {
     const updateClock = () => {
       clockEl.textContent = new Date().toLocaleTimeString('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        // 'second: '2-digit',' <-- BARIS INI DIHAPUS
         hour12: false
       });
     };
-    setInterval(updateClock, 1000); // Tetap 1 detik agar update menit akurat
-    updateClock(); // Jalankan sekali saat memuat
+    setInterval(updateClock, 1000);
+    updateClock();
   }
 
   render();
