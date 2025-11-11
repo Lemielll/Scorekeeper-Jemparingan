@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pilih Target — Jemparingan Scorekeeper</title>
+  <style>
+    :root {
+      --bg: #fbf7f1;
+      --card: #fffaf5;
+      --accent: #8b5e3c;
+      --muted: #6b5b50;
+      --shadow: rgba(0,0,0,0.06);
+      font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(180deg, var(--bg), #fffaf0);
+    }
+    .wrap{
+      width:920px;
+      max-width:92%;
+      padding:28px;
+      background:var(--card);
+      border-radius:12px;
+      box-shadow:0 6px 20px var(--shadow);
+      border:1px solid rgba(139,94,60,0.06);
+    }
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    h1{margin:0;font-size:20px;color:var(--accent)}
+    p.lead{margin:4px 0 0;color:var(--muted)}
+    .choices{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px}
+    .option{
+      flex:1;
+      min-width:220px;
+      padding:18px;
+      border-radius:10px;
+      background:linear-gradient(180deg,#fff,#fff9f3);
+      border:1px solid rgba(139,94,60,0.08);
+      cursor:pointer;
+      box-shadow:0 4px 12px rgba(0,0,0,0.04);
+      transition:transform .14s ease, box-shadow .14s ease;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .option:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,0,0,0.06)}
+    .option h2{margin:0;color:var(--accent);font-size:18px}
+    .option p{margin:0;color:var(--muted);font-size:13px}
+    .foot{display:flex;justify-content:space-between;align-items:center;margin-top:18px;color:var(--muted);font-size:13px}
+    .small{font-size:12px;color:var(--muted)}
+    .btn{
+      background:var(--accent);
+      color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;
+      box-shadow:0 3px 8px rgba(139,94,60,0.18)
+    }
+    @media (max-width:640px){ .choices{flex-direction:column} .wrap{padding:16px} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Jemparingan Scorekeeper</h1>
+        <p class="lead">Pilih sistem penilaian untuk ronde ini.</p>
+      </div>
+    </header>
+
+    <div class="choices">
+      <div class="option" id="opt-321">
+        <h2>Bandul 1 – 2 – 3</h2>
+        <p>Skor setiap tembakan bisa 3, 2, 1, atau M (miss).</p>
+        <p class="small">Bandul terdiri dari Molo, Jonggo, dan Awak.</p>
+      </div>
+
+      <div class="option" id="opt-13">
+        <h2>Bandul 1 – 3</h2>
+        <p>Skor hanya 3 atau 1 dan M (miss).</p>
+        <p class="small">Bandul terdiri dari Molo dan Awak.</p>
+      </div>
+    </div>
+
+    <div class="foot">
+      <div>Menembakkan 4 anak panah / seri, maksimal 20 seri</div>
+      <div><button class="btn" id="btn-continue" style="display:none">Lanjutkan</button></div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('opt-321').addEventListener('click', ()=> {
+      localStorage.setItem('targetMode', '321');
+      window.location.href = 'jemparingan.html';
+    });
+    document.getElementById('opt-13').addEventListener('click', ()=> {
+      localStorage.setItem('targetMode', '13');
+      window.location.href = 'jemparingan.html';
+    });
+  </script>
+</body>
+</html>

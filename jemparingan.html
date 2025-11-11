@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Jemparingan — Scorekeeper</title>
+  
+  <style>
+    :root{
+      --bg:#fbf7f1;
+      --panel:#fffaf5;
+      --accent:#8b5e3c;
+      --accent-dark:#6b492d;
+      --accent-light:#fff8f2;
+      --muted:#6b5b50;
+      --danger:#d9534f;
+      --success:#28a745;
+      --shadow-light:rgba(0,0,0,0.05);
+      --shadow-med:rgba(139,94,60,0.1);
+      font-family:"Segoe UI",Roboto,system-ui,-apple-system,"Helvetica Neue",Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,var(--bg),#fffefb);
+      color:#222;
+      font-size:15px;
+    }
+    .wrap{max-width:980px;margin:20px auto;padding:18px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    h1{margin:0;color:var(--accent)}
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:14px}
+    .card{
+      background:var(--panel);
+      padding:16px;
+      border-radius:12px;
+      box-shadow:0 5px 15px var(--shadow-med);
+      border:1px solid rgba(139,94,60,0.08);
+    }
+    .players{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .player{
+      padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.04);
+      background:#fff;position:relative;cursor:pointer;
+      transition:background .1s ease,transform .1s ease;
+      box-shadow:0 3px 6px var(--shadow-light);
+    }
+    .player:not(.selected):hover{background:#fefcf9;transform:translateY(-2px);box-shadow:0 4px 10px var(--shadow-med)}
+    .player.selected{outline:3px solid rgba(139,94,60,0.1);cursor:default;background:#fff;box-shadow:0 3px 6px var(--shadow-light)}
+    .name{font-weight:700;margin-bottom:6px;color:var(--accent-dark);font-size:18px}
+    .meta{color:var(--muted);font-size:13px;margin-bottom:6px}
+    button{
+      padding:8px 12px;border-radius:8px;border:1px solid rgba(139,94,60,0.1);
+      background:#fff;cursor:pointer;font-weight:600;color:var(--muted);
+      transition:all .15s ease;
+    }
+    button:hover{background:var(--panel);border-color:var(--accent);color:var(--accent)}
+    input[type="text"]{
+      padding:8px 12px;border-radius:8px;border:1px solid rgba(139,94,60,0.1);flex:1;
+    }
+    input[type="text"]:focus{
+      outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,94,60,0.1);
+    }
+    .controls{display:flex;gap:10px}
+    #endBtn{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:700;}
+    #endBtn:hover{background:#c9302c;border-color:#c9302c;color:#fff;}
+    /* ✅ PERBAIKAN: gunakan class .done, bukan selector textContent */
+    #endBtn.done{
+      background:var(--success);
+      border-color:var(--success);
+      color:#fff;
+      cursor:default;
+      pointer-events:none;
+    }
+    #exportBtn,#resetBtn,#backToChoose{
+      background:var(--accent-light);
+      border-color:rgba(139,94,60,0.2);
+      color:var(--accent);
+    }
+    #exportBtn:hover,#resetBtn:hover,#backToChoose:hover{
+      background:var(--accent);color:#fff;
+    }
+    #prevEnd,#nextEnd,#addFromInput{
+      background:var(--accent-light);
+      border-color:rgba(139,94,60,0.2);
+      color:var(--accent);
+      font-weight:700;
+      padding:8px;
+    }
+    #prevEnd:hover,#nextEnd:hover,#addFromInput:hover{
+      background:var(--accent);color:#fff;
+    }
+    #addFromInput{padding:8px 12px;}
+    .pad{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+    .pad button{
+      width:42px;height:42px;padding:0;font-size:16px;font-weight:700;
+      color:var(--accent-dark);border:1px solid rgba(139,94,60,0.2);
+    }
+    .pad button:hover{background:var(--accent);border-color:var(--accent);color:#fff;}
+    aside .leader{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(139,94,60,0.06)}
+    .muted{color:var(--muted);font-size:13px}
+    .top-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .small{font-size:12px;color:var(--muted)}
+    .meta-seri{font-size:13px;font-weight:700;color:var(--muted);margin-top:10px}
+    .current-arrows{display:flex;gap:6px;margin:6px 0 8px 0;}
+    .arrow-box{
+      flex:1;height:36px;border:1px solid rgba(139,94,60,0.2);
+      border-radius:6px;display:flex;align-items:center;justify-content:center;
+      font-weight:700;font-size:15px;background:#fff;
+    }
+    .arrow-box.filled{background:var(--accent-light);color:var(--accent);border-color:rgba(139,94,60,0.1);cursor:pointer;transition:background .1s ease,border-color .1s ease;}
+    .arrow-box.filled:hover{background:#ffeeda;border-color:rgba(139,94,60,0.4);}
+    .remove-btn{position:absolute;top:6px;right:8px;background:none;border:none;padding:0 4px;font-size:20px;font-weight:700;color:#ccc;cursor:pointer;line-height:1;}
+    .remove-btn:hover{color:var(--danger);}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}.players{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Jemparingan Scorekeeper</h1>
+        <div class="small" id="modeLabel">Memuat mode...</div>
+      </div>
+      <div class="controls">
+        <button id="backToChoose">Kembali</button>
+        <button id="exportBtn">Export CSV</button>
+        <button id="resetBtn">Reset Sesi</button>
+        <button id="endBtn">Akhiri Sesi</button>
+      </div>
+    </header>
+
+    <div class="card top-row">
+      <div><span class="muted">Anak panah / seri: 4</span></div>
+      <div class="muted small">Keyboard: angka untuk skor (jika relevan)</div>
+    </div>
+
+    <div class="grid">
+      <main>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div><strong>Daftar Atlet</strong></div>
+            <div class="small muted">Klik kotak atlet untuk aktifkan input skor</div>
+          </div>
+          <div class="players" id="players"></div>
+          <div style="margin-top:12px;color:var(--muted);font-size:13px">
+            Tips: Klik nama atlet → gunakan tombol skor. Klik skor di kotak untuk menghapusnya.
+          </div>
+        </div>
+      </main>
+
+      <aside>
+        <div class="card">
+          <h3 style="margin-top:0">Leaderboard</h3>
+          <div id="leaderboard"></div>
+
+          <div style="margin-top:12px">
+            <div style="margin-bottom:8px">Tambahkan atlet</div>
+            <div style="display:flex;gap:8px">
+              <input id="newName" type="text" placeholder="Nama atlet" />
+              <button id="addFromInput">Tambah</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="muted">Competitors: <span id="numComp">0</span></div>
+            <div class="muted">Seri maksimal per ronde: <span id="maxEnds">20</span></div>
+            <div style="display:flex;gap:12px;margin-top:10px;align-items:center;">
+              <button id="prevEnd" style="flex:1;">◀</button>
+              <div style="text-align:center;font-weight:bold;color:var(--accent);white-space:nowrap;">
+                Seri: <span id="currentEnd">1</span> / <span id="maxEndsLabel">20</span>
+              </div>
+              <button id="nextEnd" style="flex:1;">▶</button>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+  <script src="script-jemparingan.js"></script>
+</body>
+</html>
