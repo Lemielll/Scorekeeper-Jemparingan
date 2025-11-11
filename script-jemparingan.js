@@ -21,13 +21,13 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const clockEl = document.getElementById('clock');
 
-  modeLabel.textContent = mode === '321' ? 'Mode: 3 – 2 – 1' : 'Mode: 3 – 1';
+  modeLabel.textContent = mode === '321' ? 'Bandul: 3 – 2 – 1' : 'Bandul: 3 – 1';
   maxEndsLabel.textContent = maxEnds;
   maxEndsEl.textContent = maxEnds;
 
   const scoringButtonsByMode = {
     '321': ['3', '2', '1', 'M'],
-    '13': ['3', '1', 'M']
+    '31': ['3', '1', 'M']
   };
 
   const state = {
@@ -211,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
       endBtn.classList.add('done');
       state.currentEnd = maxEnds;
       render();
-      alert('Sesi selesai. Kamu bisa export hasil atau reset untuk sesi baru.');
+      // alert('Sesi selesai. Kamu bisa export hasil atau reset untuk sesi baru.'); // <-- BARIS INI DIHAPUS
     }
   }
 
