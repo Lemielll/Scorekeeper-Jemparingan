@@ -28,9 +28,9 @@
       zoom: 1.25; 
     }
     .wrap{max-width:980px;margin:20px auto;padding:18px}
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-direction: column;}
     h1{margin:0;color:var(--accent)}
-    .grid{display:grid;grid-template-columns:1fr 340px;gap:14px}
+    .grid{display:grid;grid-template-rows:1fr 340px;gap:14px;}
     .card{
       background:var(--panel);
       padding:16px;
@@ -62,7 +62,13 @@
       outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,94,60,0.1);
     }
     .controls{display:flex;gap:10px}
-    #endBtn{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:700;}
+    #endBtn{background:var(--danger);color:#fff;border-color:var(--danger);font-weight:700;
+          width: 25%;
+      font-size: 10px;
+      height: 30px;
+      display: flex;
+        align-items: center;
+        justify-content: center;}
     #endBtn:hover{background:#c9302c;border-color:#c9302c;color:#fff;}
     #endBtn.done{
       background:var(--success);
@@ -75,6 +81,13 @@
       background:var(--accent-light);
       border-color:rgba(139,94,60,0.2);
       color:var(--accent);
+      width: 25%;
+      font-size: 10px;
+      height: 30px;
+      display: flex;
+        align-items: center;
+        justify-content: center;
+
     }
     #exportBtn:hover,#resetBtn:hover,#backToChoose:hover{
       background:var(--accent);color:#fff;
@@ -119,14 +132,16 @@
     .arrow-box.filled:hover{background:#ffeeda;border-color:rgba(139,94,60,0.4);}
     .remove-btn{position:absolute;top:6px;right:8px;background:none;border:none;padding:0 4px;font-size:20px;font-weight:700;color:#ccc;cursor:pointer;line-height:1;}
     .remove-btn:hover{color:var(--danger);}
+    .title{font-size:25px}
+    
     @media(max-width:900px){.grid{grid-template-columns:1fr}.players{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1>Jemparingan Scorekeeper</h1>
+      <div style="display: flex; flex-direction: column; width: 100%; padding: 5px;">
+        <h1 class="title">My Jemparingan</h1>
         <div class="small" id="modeLabel">Memuat mode...</div>
       </div>
       
@@ -155,14 +170,14 @@
           <div style="margin-top:0px; margin-bottom: 12px; border-bottom: 1px solid rgba(139,94,60,0.1); padding-bottom: 12px;">
             <div style="margin-bottom:8px; font-weight:600; color: var(--accent-dark);">Input skor manual / barcode</div>
             <div style="display:flex;gap:8px">
-              <input id="newName" type="text" placeholder="Nama atlet" />
+              <input id="newName" type="text" placeholder="Nama atlet" style="width:110px;" />
               <button id="addFromInput" style="flex-grow: 1;">Tambah</button>
               
               <button id="scanBtn" title="Pindai Barcode">⛶</button>
             </div>
           </div>
           <div class="players" id="players"></div>
-          <div style="margin-top:12px;color:var(--muted);font-size:13px">
+          <div style="margin-top:12px;color:var(--muted);font-size:10px">
             Tips: Klik nama atlet → gunakan tombol skor. Klik skor di kotak untuk menghapusnya.
           </div>
         </div>
